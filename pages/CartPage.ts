@@ -7,7 +7,7 @@ export class CartPage {
     ) { }
 
 
-    //----Locators------
+    //----Locator------
 
     private get removeButtons() {
 
