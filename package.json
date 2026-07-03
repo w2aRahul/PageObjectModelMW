@@ -4,11 +4,16 @@
   "description": "Mobile automation tests with MobileWright",
   "scripts": {
     "test": "mobilewright test",
-    "test:report": "mobilewright test --reporter html && mobilewright show-report"
+    "test:report": "mobilewright test --reporter html && mobilewright show-report",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report",
+    "allure:serve": "allure serve allure-results"
   },
   "devDependencies": {
     "@mobilewright/test": "latest",
     "@types/node": "^20.19.43",
+    "allure-commandline": "^2.43.0",
+    "allure-playwright": "^3.10.2",
     "mobilewright": "latest",
     "typescript": "^5.0.0"
   }

@@ -13,15 +13,19 @@ A **mobile test-automation framework** for the Way2Automation **MediShop** Andro
 ```bash
 npm test                # run the suite (mobilewright test)
 npm run test:report     # run with HTML reporter, then open it
+npm run allure:generate # build the Allure report (allure-results/ → allure-report/)
+npm run allure:open     # open the generated Allure report
+npm run allure:serve    # generate + serve a temporary Allure report
 ```
 
-There is no build/lint/typecheck script configured; TypeScript is run by the MobileWright runner directly. There is no unit-test layer — every spec is an on-device e2e test.
+There is no build/lint/typecheck script configured; TypeScript is run by the MobileWright runner directly. There is no unit-test layer — every spec is an on-device e2e test. Two reporters run each test: the built-in **HTML** (`playwright-report/`) and **Allure** (`allure-results/` → `allure-report/`).
 
 ## Prerequisites (must hold before tests pass)
 
 - An Android device/emulator connected and visible to `adb devices`.
 - Its serial matches `deviceName` in `mobilewright.config.ts`.
 - The MediShop app is installed (or enable `installApps` in the config to push `app/way2automation.apk`).
+- **Java 8+** on the `PATH` for the Allure CLI (`allure:generate` / `allure:open` / `allure:serve`).
 
 ---
 
@@ -36,7 +40,8 @@ There is no build/lint/typecheck script configured; TypeScript is run by the Mob
 | `tests/*.test.ts` | maintained production specs | import from `../fixtures/test`, never base runner |
 | `rough/*.test.ts` | scratch / reference specs | import base `@mobilewright/test`; NOT maintained |
 | `app/` | the `.apk` binary | — |
-| `playwright-report/`, `test-results/` | generated output | do not edit; safe to delete |
+| `mobilewright.config.ts` `reporter` | HTML + Allure reporter array | add reporters as `[name, options]` tuples |
+| `playwright-report/`, `test-results/`, `allure-results/`, `allure-report/` | generated output | do not edit or commit; git-ignored, safe to delete |
 
 ---
 

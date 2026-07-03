@@ -6,7 +6,15 @@ export default defineConfig({
   deviceName: 'R3CT204N57L',
   //installApps: './app/way2automation.apk',
   autoAppLaunch: true,
-  reporter: 'html',
+  reporter: [
+    ['list'],
+    ['html'],
+    ['allure-playwright', {
+      resultsDir: 'allure-results',
+      detail: true,
+      suiteTitle: true,
+    }],
+  ],
 
 
   //  workers: 2,

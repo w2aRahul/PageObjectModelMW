@@ -14,7 +14,7 @@ Mobile test automation framework for the **Way2Automation MediShop** Android app
 | Design pattern | Page Object Model + fixtures |
 | Target platform | Android (real device / emulator) |
 | App under test | `com.way2automation.medishop` (MediShop) |
-| Reporting | Built-in HTML reporter |
+| Reporting | Built-in HTML reporter + [Allure](https://allurereport.org/) (`allure-playwright` + `allure-commandline`) |
 
 The API deliberately mirrors Playwright (`test.extend`, `beforeEach`/`afterEach`, `getByTestId`, `getByText`, `swipe`, fixtures), so anyone familiar with Playwright web testing will recognize the structure — the difference is the target is a native Android app driven through a `Device` + `Screen` abstraction instead of a browser page.
 
@@ -49,7 +49,9 @@ PageObjectModelMW/
 │   └── datadriven.test.ts
 │
 ├── playwright-report/         # Generated HTML report output
-└── test-results/              # Generated run artifacts
+├── test-results/              # Generated run artifacts
+├── allure-results/            # Raw Allure results (generated each run, git-ignored)
+└── allure-report/             # Generated Allure HTML report (git-ignored)
 ```
 
 ---
@@ -100,8 +102,10 @@ The single source of truth for how tests run. Passed to `defineConfig()`.
 | `bundleId` | `'com.way2automation.medishop'` | App package under test |
 | `deviceName` | `'R3CT204N57L'` | Physical device serial (from `adb devices`) |
 | `autoAppLaunch` | `true` | Auto-launch the app at session start |
-| `reporter` | `'html'` | Produce an HTML report |
+| `reporter` | `[['list'], ['html'], ['allure-playwright', {...}]]` | Console list + HTML report + Allure results |
 | `timeout` | `90_000` | 90s per-test timeout |
+
+The `reporter` is an array of Playwright-style `[name, options?]` tuples (MobileWright forwards them straight to Playwright's reporter resolution). `allure-playwright` writes raw results to `allure-results/` with `{ detail: true, suiteTitle: true }`; the `allure-commandline` CLI (via the `allure:*` npm scripts) turns those into the browsable `allure-report/`. See §7.
 
 Commented-out sections preserve alternatives that are ready to enable:
 - `installApps: './app/way2automation.apk'` — install the APK before running (instead of assuming it's pre-installed).
@@ -243,11 +247,39 @@ npm test                # run the suite (mobilewright test)
 npm run test:report     # run with HTML reporter, then open the report
 ```
 
-**Prerequisites:** an Android device/emulator connected and visible to `adb`, with its serial matching `deviceName` in `mobilewright.config.ts`, and the MediShop app installed (or enable `installApps` to push the APK from `app/`).
+**Prerequisites:** an Android device/emulator connected and visible to `adb`, with its serial matching `deviceName` in `mobilewright.config.ts`, and the MediShop app installed (or enable `installApps` to push the APK from `app/`). **Java 8+** is required for the Allure report (see §7).
 
 ---
 
-## 7. Design Rationale — Why POM Here
+## 7. Reporting
+
+Two reporters run on every `npm test`, wired via the `reporter` array in `mobilewright.config.ts`:
+
+1. **HTML** (built-in) → `playwright-report/`; open with `npm run test:report`.
+2. **Allure** (`allure-playwright`) → raw results in `allure-results/`.
+
+Allure is a two-stage process: the test run drops machine-readable result files into `allure-results/`, then the `allure-commandline` CLI renders them into a static HTML site in `allure-report/`.
+
+```bash
+npm test                 # produces allure-results/
+npm run allure:generate  # allure-results/ → allure-report/  (allure generate --clean)
+npm run allure:open      # open the generated allure-report/
+npm run allure:serve     # generate + open a temporary report in one step
+```
+
+| npm script | Command | Purpose |
+|-----------|---------|---------|
+| `allure:generate` | `allure generate allure-results --clean -o allure-report` | Build the static report |
+| `allure:open` | `allure open allure-report` | Serve the built report |
+| `allure:serve` | `allure serve allure-results` | Build to a temp dir and serve immediately |
+
+Both `allure-results/` and `allure-report/` are git-ignored (regenerated each run). The Allure CLI is a **Java** tool, so a JRE (8+) must be on the `PATH`.
+
+> **CI note:** the GitHub Actions workflow only installs deps and type-checks — Allure results require an actual on-device run, which hosted runners can't do. Generate the Allure report locally or on a self-hosted runner with an attached device.
+
+---
+
+## 8. Design Rationale — Why POM Here
 
 1. **Readability** — tests read as user stories (`homePage.goToCart(); cartPage.emptyCart();`).
 2. **Maintainability** — a UI change (e.g. a new locator) is fixed in one page object, not across every test.

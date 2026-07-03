@@ -32,15 +32,23 @@ The model needs these competencies (all demonstrated in this repo):
   "description": "Mobile automation tests with MobileWright",
   "scripts": {
     "test": "mobilewright test",
-    "test:report": "mobilewright test --reporter html && mobilewright show-report"
+    "test:report": "mobilewright test --reporter html && mobilewright show-report",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report",
+    "allure:serve": "allure serve allure-results"
   },
   "devDependencies": {
     "@mobilewright/test": "latest",
+    "@types/node": "^20.0.0",
+    "allure-commandline": "^2.43.0",
+    "allure-playwright": "^3.10.2",
     "mobilewright": "latest",
     "typescript": "^5.0.0"
   }
 }
 ```
+
+> `@types/node` is needed so the typecheck resolves the `node` type lib and `setTimeout`. `allure-playwright` + `allure-commandline` add the Allure report (Phase 2).
 
 Then `npm install`.
 
@@ -62,7 +70,11 @@ export default defineConfig({
   deviceName: '<adb-serial-or-emulator-id>',   // from `adb devices`
   // installApps: './app/<app>.apk',           // enable to push the APK first
   autoAppLaunch: true,
-  reporter: 'html',
+  reporter: [                                   // Playwright-style [name, options] tuples
+    ['list'],
+    ['html'],
+    ['allure-playwright', { resultsDir: 'allure-results', detail: true, suiteTitle: true }],
+  ],
   timeout: 90_000,
   // workers: 2, fullyParallel: true,          // enable for parallel runs
   // projects: [ /* per-device matrix, each with its own `use` block */ ],
@@ -72,6 +84,8 @@ export default defineConfig({
 Put the APK under `app/` if using `installApps`.
 
 **Decisions to record:** the app's package id (`adb shell pm list packages`), the device serial, and a realistic `timeout` (mobile is slow; 90s is a good default).
+
+**Reporting:** the `reporter` array runs the built-in **HTML** report (`playwright-report/`) plus **Allure** (`allure-playwright` → `allure-results/`). Render Allure with the `allure:*` npm scripts (`allure generate`/`open`/`serve`); the CLI is a **Java** tool, so a JRE 8+ must be on the `PATH`. Git-ignore `allure-results/` and `allure-report/`.
 
 **Checkpoint:** `npx mobilewright test` connects to the device (even with zero tests).
 

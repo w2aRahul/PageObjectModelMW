@@ -12,7 +12,7 @@ Mobile test-automation framework for the **Way2Automation MediShop** Android app
 - 💉 **Fixture-based dependency injection** — page objects auto-injected into tests
 - 📄 **Data-driven** — test inputs externalized to JSON
 - 📱 **Native Android automation** — driven through MobileWright's `Device` + `Screen` API
-- 📊 **HTML reporting** built in
+- 📊 **Rich reporting** — built-in HTML report **and** [Allure](https://allurereport.org/) report
 - ✅ **CI on every push** via GitHub Actions
 
 ## Tech Stack
@@ -47,6 +47,7 @@ See **[ARCHITECTURE.md](./ARCHITECTURE.md)** for the full layer-by-layer breakdo
 - An **Android device or emulator** connected and visible to `adb devices`
 - The device serial matching `deviceName` in `mobilewright.config.ts`
 - The MediShop app installed (or enable `installApps` in the config to push `app/way2automation.apk`)
+- **Java 8+** on the `PATH` — required by `allure-commandline` to generate/open the Allure report
 
 ## Getting Started
 
@@ -65,6 +66,36 @@ npm test
 # 5. Run with an HTML report and open it
 npm run test:report
 ```
+
+## Reporting
+
+Two reporters are configured in `mobilewright.config.ts` and run on every `npm test`:
+
+### HTML report (built-in)
+Written to `playwright-report/`. Open it with:
+```bash
+npm run test:report
+```
+
+### Allure report
+Every test run writes raw results to `allure-results/` (via the `allure-playwright` reporter). Turn those into a browsable report:
+
+```bash
+npm test                 # 1. run tests → produces allure-results/
+npm run allure:generate  # 2. build the HTML report into allure-report/
+npm run allure:open      # 3. open the generated report in a browser
+
+# …or do generate + serve in one step (temporary server):
+npm run allure:serve
+```
+
+| Script | Does |
+|--------|------|
+| `allure:generate` | `allure generate allure-results --clean -o allure-report` |
+| `allure:open` | Serves the already-generated `allure-report/` |
+| `allure:serve` | Generates a temporary report from `allure-results/` and opens it |
+
+> **Requires Java 8+** on the `PATH` (Allure's CLI is a Java tool). Both `allure-results/` and `allure-report/` are git-ignored — they're regenerated on each run.
 
 ## Writing a Test
 
