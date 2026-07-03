@@ -12,6 +12,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["pages", "fixtures", "tests", "rough", "mobilewright.config.ts"],
-  "exclude": ["node_modules"]
+  "include": ["pages", "fixtures", "tests", "rough"],
+  "exclude": ["node_modules", "mobilewright.config.ts"]
 }
