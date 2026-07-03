@@ -1,0 +1,14 @@
+{
+  "name": "pageobjectmodelmw",
+  "version": "1.0.0",
+   "description": "Mobile automation tests with MobileWright",
+  "scripts": {
+    "test": "mobilewright test",
+    "test:report": "mobilewright test --reporter html && mobilewright show-report"
+  },
+  "devDependencies": {
+    "@mobilewright/test": "latest",
+    "mobilewright": "latest",
+    "typescript": "^5.0.0"
+  }
+}

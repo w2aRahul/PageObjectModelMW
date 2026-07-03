@@ -1,0 +1,14 @@
+[
+  {
+    "email": "trainer@way2automation.com",
+    "password": "way2automation"    
+  },
+  {
+    "email": "emma@demoapp.com",
+    "password": "10203040"
+  },
+  {
+    "email": "testuser@gmail.com",
+    "password": "test123"
+  }
+]
