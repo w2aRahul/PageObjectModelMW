@@ -14,7 +14,7 @@ export class CartPage {
         return this.screen.getByLabel('Remove');
     }
 
-    //----Actions----
+    //----Action----
 
     async itemCount() {
         return await this.removeButtons.count();
